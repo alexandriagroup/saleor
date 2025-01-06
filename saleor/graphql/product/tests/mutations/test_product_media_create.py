@@ -222,6 +222,46 @@ def test_product_media_create_mutation_with_unknown_url(
     assert errors[0]["field"] == "mediaUrl"
 
 
+def test_product_media_create_mutation_with_unknown_url_but_disable_validation(
+    monkeypatch,
+    staff_api_client,
+    product,
+    permission_manage_products,
+    media_root,
+    settings,
+):
+    # given
+    variables = {
+        "product": graphene.Node.to_global_id("Product", product.id),
+        "mediaUrl": "https://m.media-amazon.com/images/I/41WIBAhNLnL._MCnd_AC_.jpg",
+        "alt": "Test Alt Text",
+    }
+    body = get_multipart_request_body(
+        PRODUCT_MEDIA_CREATE_QUERY, variables, file="", file_name="name"
+    )
+
+    # when
+    settings.DISABLE_MEDIA_DOWNLOAD = True
+    response = staff_api_client.post_multipart(
+        body, permissions=[permission_manage_products]
+    )
+    content = get_graphql_content(response)
+
+    # then
+    errors = content["data"]["productMediaCreate"]["errors"]
+    assert len(errors) == 0
+    media = content["data"]["productMediaCreate"]["product"]["media"]
+    alt = "Test Alt Text"
+
+    assert len(media) == 1
+    assert (
+        media[0]["url"]
+        == "https://m.media-amazon.com/images/I/41WIBAhNLnL._MCnd_AC_.jpg"
+    )
+    assert media[0]["alt"] == alt
+    assert media[0]["type"] == ProductMediaTypes.IMAGE
+
+
 def test_invalid_product_media_create_mutation(
     staff_api_client, product, permission_manage_products
 ):

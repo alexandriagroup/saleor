@@ -992,3 +992,6 @@ TRANSACTION_ITEMS_LIMIT = 100
 # Disable Django warnings regarding too long cache keys being incompatible with
 # memcached to avoid leaking key values.
 warnings.filterwarnings("ignore", category=CacheKeyWarning)
+
+# Disable medias download on media creation
+DISABLE_MEDIA_DOWNLOAD = os.environ.get("DISABLE_IMAGE_DOWNLOAD", False)

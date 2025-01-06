@@ -1,4 +1,5 @@
 import graphene
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files import File
 
@@ -114,7 +115,7 @@ class ProductMediaCreate(BaseMutation):
             media = product.media.create(
                 image=image_data, alt=alt, type=ProductMediaTypes.IMAGE
             )
-        if media_url:
+        if media_url and not settings.DISABLE_IMAGE_DOWNLOAD:
             # Remote URLs can point to the images or oembed data.
             # In case of images, file is downloaded. Otherwise we keep only
             # URL to remote media.
@@ -140,6 +141,16 @@ class ProductMediaCreate(BaseMutation):
                     type=media_type,
                     oembed_data=oembed_data,
                 )
+        if media_url and settings.DISABLE_MEDIA_DOWNLOAD:
+            # We bypass url validation because img url can be anything (like a 302
+            # redirection without any extension)
+            # So we just need to store it like it gets
+            media = product.media.create(
+                external_url=media_url,
+                alt=alt,
+                type=ProductMediaTypes.IMAGE,
+            )
+
         manager = get_plugin_manager_promise(info.context).get()
         cls.call_event(manager.product_updated, product)
         cls.call_event(manager.product_media_created, media)
