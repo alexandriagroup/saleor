@@ -115,7 +115,7 @@ class ProductMediaCreate(BaseMutation):
             media = product.media.create(
                 image=image_data, alt=alt, type=ProductMediaTypes.IMAGE
             )
-        if media_url and not settings.DISABLE_IMAGE_DOWNLOAD:
+        if media_url and not settings.DISABLE_MEDIA_DOWNLOAD:
             # Remote URLs can point to the images or oembed data.
             # In case of images, file is downloaded. Otherwise we keep only
             # URL to remote media.

@@ -994,4 +994,4 @@ TRANSACTION_ITEMS_LIMIT = 100
 warnings.filterwarnings("ignore", category=CacheKeyWarning)
 
 # Disable medias download on media creation
-DISABLE_MEDIA_DOWNLOAD = os.environ.get("DISABLE_IMAGE_DOWNLOAD", False)
+DISABLE_MEDIA_DOWNLOAD = os.environ.get("DISABLE_MEDIA_DOWNLOAD", False)
